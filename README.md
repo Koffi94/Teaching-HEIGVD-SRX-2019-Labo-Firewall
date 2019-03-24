@@ -243,7 +243,7 @@ ping 192.168.200.3
 ```
 ---
 
-**LIVRABLE : capture d'écran de votre tentative de ping.**  
+![**LIVRABLE : capture d'écran de votre tentative de ping.**  ](figures/FisrtPing.png)
 
 ---
 
@@ -275,7 +275,7 @@ ping 192.168.100.3
 
 ---
 
-**LIVRABLE : capture d'écran de votre nouvelle tentative de ping.**
+![**LIVRABLE : capture d'écran de votre nouvelle tentative de ping.**](figures/SecondPing.png)
 
 ---
 
@@ -289,7 +289,7 @@ ping 8.8.8.8
 
 ---
 
-**LIVRABLE : capture d'écran de votre ping vers l'Internet.**
+![**LIVRABLE : capture d'écran de votre ping vers l'Internet.**](figures/PingGoogle.png)
 
 ---
 
@@ -373,21 +373,39 @@ Pour chaque manipulation, il est important de **garder les règles déjà créé
 
 Pour commencer sur une base fonctionnelle, nous allons configurer le pare-feu pour accepter le **ping** dans certains cas. Cela va permettre de tester la connectivité du réseau.
 
-Le but est de configurer les règles pour que le pare-feu accepte
--	les ping depuis le LAN sur les machines de la DMZ,
--	les ping depuis le LAN sur le WEB,
--	les ping depuis la DMZ vers le LAN.
+Le but est de configurer les règles pour que le pare-feu accepte  
+-	les ping depuis le LAN sur les machines de la DMZ,  
+-	les ping depuis le LAN sur le WEB,  
+-	les ping depuis la DMZ vers le LAN.  
 
 Ceci correspond a la **condition 2** du cahier des charges.
 
 Commandes iptables :
 
----
+ 
+
+--- 
+
+**LAN à DMZ** 
 
 ```bash
-LIVRABLE : Commandes iptables
+iptables -A FORWARD -p icmp -s 192.168.100.0/24 --icmp-type 8 -d 192.168.200.0/24 -j ACCEPT
+iptables -A FORWARD -p icmp -s 192.168.200.0/24 --icmp-type 0 -d 192.168.100.0/24 -j ACCEPT
+```
+**LAN à WAN** 
+
+```bash
+iptables -A FORWARD -p icmp -s 192.168.100.0/24 --icmp-type 8 -j ACCEPT
+iptables -A FORWARD -p icmp --icmp-type 0 -d 192.168.100.0/24 -j ACCEPT
+```
+**DMZ à LAN** 
+
+```bash
+iptables -A FORWARD -p icmp -s 192.168.200.0/24 --icmp-type 8 -d 192.168.100.0/24 -j ACCEPT
+iptables -A FORWARD -p icmp -s 192.168.100.0/24 --icmp-type 0 -d 192.168.200.0/24 -j ACCEPT
 ```
 ---
+
 
 ### Questions
 
