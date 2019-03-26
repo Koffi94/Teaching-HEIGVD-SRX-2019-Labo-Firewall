@@ -395,8 +395,8 @@ iptables -A FORWARD -p icmp -s 192.168.200.0/24 --icmp-type 0 -d 192.168.100.0/2
 **LAN à WAN** 
 
 ```bash
-iptables -A FORWARD -p icmp -s 192.168.100.0/24 --icmp-type 8 -j ACCEPT
-iptables -A FORWARD -p icmp --icmp-type 0 -d 192.168.100.0/24 -j ACCEPT
+iptables -A FORWARD -p icmp -s 192.168.100.0/24 -i eth1 --icmp-type 8 -j ACCEPT
+iptables -A FORWARD -p icmp -i eth1 --icmp-type 0 -d 192.168.100.0/24 -j ACCEPT
 ```
 **DMZ à LAN** 
 
@@ -474,14 +474,14 @@ Commandes iptables :
 **LAN à WAN** 
 
 ```bash
-iptables -A FORWARD -p udp -s 192.168.100.0/24 --dport 53 -j ACCEPT
-iptables -A FORWARD -p tcp -s 192.168.100.0/24 --dport 53 -j ACCEPT
+iptables -A FORWARD -p udp -s 192.168.100.0/24 -i eth1 --dport 53 -j ACCEPT
+iptables -A FORWARD -p tcp -s 192.168.100.0/24 -i eth1 --dport 53 -j ACCEPT
 ```
 **WAN à LAN** 
 
 ```bash
-iptables -A FORWARD -p udp --sport 53 -d 192.168.100.0/24 -j ACCEPT
-iptables -A FORWARD -p tcp --sport 53 -d 192.168.100.0/24 -j ACCEPT
+iptables -A FORWARD -p udp -i eth1 --sport 53 -d 192.168.100.0/24 -j ACCEPT
+iptables -A FORWARD -p tcp -i eth1 --sport 53 -d 192.168.100.0/24 -j ACCEPT
 ```
 ---
 
@@ -526,16 +526,16 @@ Commandes iptables :
 **LAN à WAN** 
 
 ```bash
-iptables -A FORWARD -p tcp -s 192.168.100.0/24 --dport 80 -j ACCEPT
-iptables -A FORWARD -p tcp -s 192.168.100.0/24 --dport 8080 -j ACCEPT
-iptables -A FORWARD -p tcp -s 192.168.100.0/24 --dport 443 -j ACCEPT
+iptables -A FORWARD -p tcp -s 192.168.100.0/24 -i eth1 --dport 80 -j ACCEPT
+iptables -A FORWARD -p tcp -s 192.168.100.0/24 -i eth1 --dport 8080 -j ACCEPT
+iptables -A FORWARD -p tcp -s 192.168.100.0/24 -i eth1 --dport 443 -j ACCEPT
 ```
 **WAN à LAN** 
 
 ```bash
-iptables -A FORWARD -p tcp --sport 80 -d 192.168.100.0/24 -j ACCEPT
-iptables -A FORWARD -p tcp --sport 8080 -d 192.168.100.0/24 -j ACCEPT
-iptables -A FORWARD -p tcp --sport 443 -d 192.168.100.0/24 -j ACCEPT
+iptables -A FORWARD -p tcp -i eth1 --sport 80 -d 192.168.100.0/24 -j ACCEPT
+iptables -A FORWARD -p tcp -i eth1 --sport 8080 -d 192.168.100.0/24 -j ACCEPT
+iptables -A FORWARD -p tcp -i eth1 --sport 443 -d 192.168.100.0/24 -j ACCEPT
 ```
 
 ---
@@ -549,12 +549,12 @@ Commandes iptables :
 **WAN à DMZ** 
 
 ```bash
-iptables -A FORWARD -p tcp -d 192.168.200.0/24 --dport 80 -j ACCEPT
+iptables -A FORWARD -p tcp -i eth2 -d 192.168.200.0/24 --dport 80 -j ACCEPT
 ```
 **DMZ à WAN** 
 
 ```bash
-iptables -A FORWARD -p tcp -s 192.168.200.0/24 --sport 80 -j ACCEPT
+iptables -A FORWARD -p tcp -s 192.168.200.0/24 -i eth2 --sport 80 -j ACCEPT
 ```
 **LAN à DMZ** 
 
@@ -575,7 +575,7 @@ iptables -A FORWARD -p tcp -s 192.168.200.0/24 --sport 80 -d 192.168.100.0/24 -j
 
 ---
 
-**LIVRABLE : capture d'écran.**
+![**LIVRABLE : capture d'écran.**](figures/WgetHTTP.png)
 
 ---
 
@@ -591,8 +591,25 @@ Commandes iptables :
 
 ---
 
+**Client\_in_LAN à DMZ** 
+
 ```bash
-LIVRABLE : Commandes iptables
+iptables -A FORWARD -p tcp -s 192.168.100.3/32 -d 192.168.200.0/24 --dport 22 -j ACCEPT
+```
+**DMZ à Client\_in_LAN** 
+
+```bash
+iptables -A FORWARD -p tcp -s 192.168.200.0/24 --sport 22 -d 192.168.100.3/32 -j ACCEPT
+```
+**Client\_in_LAN à eth1** 
+
+```bash
+iptables -A INPUT -p tcp -s 192.168.100.3/32 -i eth1 --dport 22 -j ACCEPT
+```
+**eth1 à Client\_in_LAN** 
+
+```bash
+iptables -A OUTPUT -p tcp -o eth1 --sport 22 -d 192.168.100.3/32 -j ACCEPT
 ```
 
 ---
