@@ -395,8 +395,8 @@ iptables -A FORWARD -p icmp -s 192.168.200.0/24 --icmp-type 0 -d 192.168.100.0/2
 **LAN à WAN** 
 
 ```bash
-iptables -A FORWARD -p icmp -s 192.168.100.0/24 --icmp-type 8 -j ACCEPT
-iptables -A FORWARD -p icmp --icmp-type 0 -d 192.168.100.0/24 -j ACCEPT
+iptables -A FORWARD -p icmp -s 192.168.100.0/24 -i eth1 --icmp-type 8 -j ACCEPT
+iptables -A FORWARD -p icmp -i eth1 --icmp-type 0 -d 192.168.100.0/24 -j ACCEPT
 ```
 **DMZ à LAN** 
 
@@ -420,7 +420,7 @@ ping 8.8.8.8
 Faire une capture du ping.
 
 ---
-**LIVRABLE : capture d'écran de votre ping vers l'Internet.**
+![**LIVRABLE : capture d'écran de votre ping vers l'Internet.**](figures/PingWan-manipulation-b.png)
 
 ---
 
@@ -432,18 +432,18 @@ Faire une capture du ping.
 
 | De Client\_in\_LAN à | OK/KO | Commentaires et explications |
 | :---                 | :---: | :---                         |
-| Interface DMZ du FW  |       |                              |
-| Interface LAN du FW  |       |                              |
-| Client LAN           |       |                              |
-| Serveur WAN          |       |                              |
+| Interface DMZ du FW  |   KO  |                              |
+| Interface LAN du FW  |   KO  |                              |
+| Client LAN           |   OK  |                              |
+| Serveur WAN          |   OK  |                              |
 
 
 | De Server\_in\_DMZ à | OK/KO | Commentaires et explications |
 | :---                 | :---: | :---                         |
-| Interface DMZ du FW  |       |                              |
-| Interface LAN du FW  |       |                              |
-| Serveur DMZ          |       |                              |
-| Serveur WAN          |       |                              |
+| Interface DMZ du FW  |   KO  |                              |
+| Interface LAN du FW  |   KO  |                              |
+| Serveur DMZ          |   OK  |                              |
+| Serveur WAN          |   KO  |                              |
 
 
 ## Règles pour le protocole DNS
@@ -461,7 +461,7 @@ ping www.google.com
 
 ---
 
-**LIVRABLE : capture d'écran de votre ping.**
+![**LIVRABLE : capture d'écran de votre ping.**](figures/PingGoogleDotCom.png)
 
 ---
 
@@ -469,12 +469,20 @@ ping www.google.com
 
 Commandes iptables :
 
----
+--- 
+
+**LAN à WAN** 
 
 ```bash
-LIVRABLE : Commandes iptables
+iptables -A FORWARD -p udp -s 192.168.100.0/24 -i eth1 --dport 53 -j ACCEPT
+iptables -A FORWARD -p tcp -s 192.168.100.0/24 -i eth1 --dport 53 -j ACCEPT
 ```
+**WAN à LAN** 
 
+```bash
+iptables -A FORWARD -p udp -i eth1 --sport 53 -d 192.168.100.0/24 -j ACCEPT
+iptables -A FORWARD -p tcp -i eth1 --sport 53 -d 192.168.100.0/24 -j ACCEPT
+```
 ---
 
 <ol type="a" start="5">
@@ -484,7 +492,7 @@ LIVRABLE : Commandes iptables
 
 ---
 
-**LIVRABLE : capture d'écran de votre ping.**
+![**LIVRABLE : capture d'écran de votre ping.**](figures/PingGoogleDotCom-fonctionne.png)
 
 ---
 
@@ -515,8 +523,19 @@ Commandes iptables :
 
 ---
 
+**LAN à WAN** 
+
 ```bash
-LIVRABLE : Commandes iptables
+iptables -A FORWARD -p tcp -s 192.168.100.0/24 -i eth1 --dport 80 -j ACCEPT
+iptables -A FORWARD -p tcp -s 192.168.100.0/24 -i eth1 --dport 8080 -j ACCEPT
+iptables -A FORWARD -p tcp -s 192.168.100.0/24 -i eth1 --dport 443 -j ACCEPT
+```
+**WAN à LAN** 
+
+```bash
+iptables -A FORWARD -p tcp -i eth1 --sport 80 -d 192.168.100.0/24 -j ACCEPT
+iptables -A FORWARD -p tcp -i eth1 --sport 8080 -d 192.168.100.0/24 -j ACCEPT
+iptables -A FORWARD -p tcp -i eth1 --sport 443 -d 192.168.100.0/24 -j ACCEPT
 ```
 
 ---
@@ -527,8 +546,25 @@ Commandes iptables :
 
 ---
 
+**WAN à DMZ** 
+
 ```bash
-LIVRABLE : Commandes iptables
+iptables -A FORWARD -p tcp -i eth2 -d 192.168.200.0/24 --dport 80 -j ACCEPT
+```
+**DMZ à WAN** 
+
+```bash
+iptables -A FORWARD -p tcp -s 192.168.200.0/24 -i eth2 --sport 80 -j ACCEPT
+```
+**LAN à DMZ** 
+
+```bash
+iptables -A FORWARD -p tcp -s 192.168.100.0/24 -d 192.168.200.0/24 --dport 80 -j ACCEPT
+```
+**DMZ à LAN** 
+
+```bash
+iptables -A FORWARD -p tcp -s 192.168.200.0/24 --sport 80 -d 192.168.100.0/24 -j ACCEPT
 ```
 ---
 
@@ -539,7 +575,7 @@ LIVRABLE : Commandes iptables
 
 ---
 
-**LIVRABLE : capture d'écran.**
+![**LIVRABLE : capture d'écran.**](figures/WgetHTTP.png)
 
 ---
 
@@ -555,8 +591,25 @@ Commandes iptables :
 
 ---
 
+**Client\_in_LAN à DMZ** 
+
 ```bash
-LIVRABLE : Commandes iptables
+iptables -A FORWARD -p tcp -s 192.168.100.3/32 -d 192.168.200.0/24 --dport 22 -j ACCEPT
+```
+**DMZ à Client\_in_LAN** 
+
+```bash
+iptables -A FORWARD -p tcp -s 192.168.200.0/24 --sport 22 -d 192.168.100.3/32 -j ACCEPT
+```
+**Client\_in_LAN à eth1** 
+
+```bash
+iptables -A INPUT -p tcp -s 192.168.100.3/32 -i eth1 --dport 22 -j ACCEPT
+```
+**eth1 à Client\_in_LAN** 
+
+```bash
+iptables -A OUTPUT -p tcp -o eth1 --sport 22 -d 192.168.100.3/32 -j ACCEPT
 ```
 
 ---
