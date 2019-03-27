@@ -149,7 +149,6 @@ _Lors de la définition d'une zone, spécifier l'adresse du sous-réseau IP avec
 | 192.168.100.2 (eth1)|  Client\_in_LAN        | TCP  |  22      |   ALL    | Accept |
 | ALL                 |  ALL                   | ALL  |  ALL     |   ALL    | Drop   |
 
-
 ---
 
 # Installation de l’environnement virtualisé
@@ -384,7 +383,7 @@ Commandes iptables :
 
  
 
---- 
+---
 
 **LAN à DMZ** 
 
@@ -416,7 +415,7 @@ iptables -A FORWARD -p icmp -s 192.168.100.0/24 --icmp-type 0 -d 192.168.200.0/2
 
 ```bash
 ping 8.8.8.8
-``` 	            
+```
 Faire une capture du ping.
 
 ---
@@ -430,20 +429,20 @@ Faire une capture du ping.
 </ol>
 
 
-| De Client\_in\_LAN à | OK/KO | Commentaires et explications |
-| :---                 | :---: | :---                         |
-| Interface DMZ du FW  |   KO  |                              |
-| Interface LAN du FW  |   KO  |                              |
-| Client LAN           |   OK  |                              |
-| Serveur WAN          |   OK  |                              |
+| De Client\_in\_LAN à | OK/KO | Commentaires et explications                                 |
+| :------------------- | :---: | :----------------------------------------------------------- |
+| Interface DMZ du FW  |  KO   | Les interfaces du FW ne sont pas accéssibles car pour cela il faudrait implémenter des règles INPUT et OUPUT, or nous n'avons implémenté que des règles pour traverser le FW (FORWARD) pour l'instant. |
+| Interface LAN du FW  |  KO   | Même reflexion.                                              |
+| Client LAN           |  OK   |                                                              |
+| Serveur WAN          |  OK   |                                                              |
 
 
-| De Server\_in\_DMZ à | OK/KO | Commentaires et explications |
-| :---                 | :---: | :---                         |
-| Interface DMZ du FW  |   KO  |                              |
-| Interface LAN du FW  |   KO  |                              |
-| Serveur DMZ          |   OK  |                              |
-| Serveur WAN          |   KO  |                              |
+| De Server\_in\_DMZ à | OK/KO | Commentaires et explications                                 |
+| :------------------- | :---: | :----------------------------------------------------------- |
+| Interface DMZ du FW  |  KO   | Même réflexion                                               |
+| Interface LAN du FW  |  KO   | Même réflexion                                               |
+| Serveur DMZ          |  OK   |                                                              |
+| Serveur WAN          |  KO   | Il n'est pas demandé d'implémenter un accès DMZ to WAN. Ce qui semble logique car le scénario le plus naturel est un client du WAN qui voudra accéder à notre serveur dans la DMZ. C'est donc le client qui initiera la connexion en premier et jamais le serveur. |
 
 
 ## Règles pour le protocole DNS
@@ -469,7 +468,7 @@ ping www.google.com
 
 Commandes iptables :
 
---- 
+---
 
 **LAN à WAN** 
 
@@ -489,7 +488,6 @@ iptables -A FORWARD -p tcp -i eth0 --sport 53 -d 192.168.100.0/24 -j ACCEPT
   <li>Tester en réitérant la commande ping sur le serveur de test (Google ou autre) : 
   </li>                                  
 </ol>
-
 ---
 
 ![**LIVRABLE : capture d'écran de votre ping.**](figures/PingGoogleDotCom-fonctionne.png)
@@ -505,6 +503,8 @@ iptables -A FORWARD -p tcp -i eth0 --sport 53 -d 192.168.100.0/24 -j ACCEPT
 **Réponse**
 
 **LIVRABLE : Votre réponse ici...**
+
+Le premier ping n'a pas fonctionné car il faut d'abord résoudre le FQDN en adresse ip pour pouvoir pinger l'adresse ip. C'est un serveur DNS qui va s'occuper de faire cette traduction pour nous mais pour cela il faut ouvrir le port 53 (protocole DNS) pour que  notre machine puisse accéder au serveur DNS (configuré par défaut sur notre machine).
 
 ---
 
@@ -572,7 +572,6 @@ iptables -A FORWARD -p tcp -s 192.168.200.0/24 --sport 80 -d 192.168.100.0/24 -j
   <li>Tester l’accès à ce serveur depuis le LAN utilisant utilisant wget (ne pas oublier les captures d'écran). 
   </li>                                  
 </ol>
-
 ---
 
 ![**LIVRABLE : capture d'écran.**](figures/WgetHTTP.png)
@@ -630,11 +629,12 @@ ssh root@192.168.200.3 (password : celui que vous avez configuré)
   <li>Expliquer l'utilité de **ssh** sur un serveur. 
   </li>                                  
 </ol>
-
 ---
 **Réponse**
 
 **LIVRABLE : Votre réponse ici...**
+
+ssh permet d'accéder à l'interface d'administration du serveur de manière sécurisée. Ce protocole permet entre autre de configurer / debugger / administrer des équipements à distance.
 
 ---
 
@@ -649,6 +649,8 @@ ssh root@192.168.200.3 (password : celui que vous avez configuré)
 
 **LIVRABLE : Votre réponse ici...**
 
+Il faut faire attention à être le plus restrictif possible, c'est à dire que s'il y a un seul administrateur pour ce serveur alors il faut créer deux règles (allé-retour) qui donne accès uniquement à l'adresse IP + port SSH de la machine de l'administrateur et non pas à un range d'IP du réseau interne.
+
 ---
 
 ## Règles finales iptables
@@ -659,7 +661,6 @@ A présent, vous devriez avoir le matériel nécessaire afin de reproduire la ta
   <li>Insérer la capture d’écran avec toutes vos règles iptables
   </li>                                  
 </ol>
-
 ---
 
 ![**LIVRABLE : capture d'écran avec toutes vos règles.**](figures/iptables.png)
