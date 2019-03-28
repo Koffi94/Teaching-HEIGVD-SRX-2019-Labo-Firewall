@@ -35,10 +35,10 @@ iptables -A FORWARD -p tcp -i eth0 --sport 443 -d 192.168.100.0/24 -j ACCEPT
 
 ###5
 #WAN-DMZ
-iptables -A FORWARD -p tcp -i eth0 -d 192.168.200.0/24 --dport 80 -j ACCEPT
+iptables -A FORWARD -p tcp -i eth0 -d 192.168.200.3/32 --dport 80 -j ACCEPT
 
 #DMZ-WAN
-iptables -A FORWARD -p tcp -s 192.168.200.0/24 -o eth0 --sport 80 -j ACCEPT
+iptables -A FORWARD -p tcp -s 192.168.200.3/32 -o eth0 --sport 80 -j ACCEPT
 
 #LAN-DMZ
 iptables -A FORWARD -p tcp -s 192.168.100.0/24 -d 192.168.200.0/24 --dport 80 -j ACCEPT
