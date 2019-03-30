@@ -431,7 +431,7 @@ Faire une capture du ping.
 
 | De Client\_in\_LAN à | OK/KO | Commentaires et explications                                 |
 | :------------------- | :---: | :----------------------------------------------------------- |
-| Interface DMZ du FW  |  KO   | Les interfaces du FW ne sont pas accéssibles car pour cela il faudrait implémenter des règles INPUT et OUPUT, or nous n'avons implémenté que des règles pour traverser le FW (FORWARD) pour l'instant. |
+| Interface DMZ du FW  |  KO   | Les interfaces du FW ne sont pas accessibles car pour cela, il faudrait implémenter des règles INPUT et OUPUT. Or, nous avons implémenté que des règles pour traverser le FW (FORWARD) pour l'instant. |
 | Interface LAN du FW  |  KO   | Même reflexion.                                              |
 | Client LAN           |  OK   |                                                              |
 | Serveur WAN          |  OK   |                                                              |
@@ -442,7 +442,7 @@ Faire une capture du ping.
 | Interface DMZ du FW  |  KO   | Même réflexion                                               |
 | Interface LAN du FW  |  KO   | Même réflexion                                               |
 | Serveur DMZ          |  OK   |                                                              |
-| Serveur WAN          |  KO   | Il n'est pas demandé d'implémenter un accès DMZ to WAN. Ce qui semble logique car le scénario le plus naturel est un client du WAN qui voudra accéder à notre serveur dans la DMZ. C'est donc le client qui initiera la connexion en premier et jamais le serveur. |
+| Serveur WAN          |  KO   | Il n'est pas demandé d'implémenter un accès DMZ à WAN. Ce qui semble logique car le scénario le plus naturel est un client du WAN qui voudra accéder à notre serveur dans la DMZ. C'est donc le client qui initiera la connexion en premier et jamais le serveur. |
 
 
 ## Règles pour le protocole DNS
@@ -498,7 +498,6 @@ iptables -A FORWARD -p tcp -i eth0 --sport 53 -d 192.168.100.0/24 -j ACCEPT
   <li>Remarques (sur le message du premier ping)? 
   </li>                                  
 </ol>
-
 ---
 **Réponse**
 
